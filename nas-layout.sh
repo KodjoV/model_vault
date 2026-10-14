@@ -1,7 +1,8 @@
 #!/bin/sh
 set -eu
 # UGREEN DXP4800 Pro: data volume /volume1; never use the OS overlay.
-[ "$(df -T /volume1 | awk 'NR==2{print $2}')" = "btrfs" ] || { echo "ABBRUCH: /volume1 ist nicht btrfs" >&2; exit 1; }
+fs="$(stat -f -c %T /volume1 2>/dev/null || true)"
+[ "$fs" = "btrfs" ] || { echo "ABBRUCH: /volume1 ist ${fs:-unbekannt}, erwartet btrfs" >&2; exit 1; }
 # Shared folders must be created in UGOS. Never create shares here.
 [ -d /volume1/docker ] || { echo "UGOS-Freigabe /volume1/docker fehlt" >&2; exit 1; }
 [ -d /volume1/ModelVault ] || { echo "UGOS-Freigabe /volume1/ModelVault fehlt" >&2; exit 1; }
