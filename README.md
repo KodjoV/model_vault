@@ -5,11 +5,11 @@ Private/offline-capable model archive: pinned Hugging Face commits, resumable HT
 ## UGREEN first setup
 
 1. Find the **data** volume, not the system overlay. On this UGREEN: `/volume1` is a 19 TB btrfs volume.
-2. The example data root is `/volume1/ModelVault`; you must have NAS-user write permission. Prefer creating dedicated **ModelVault** and **Docker** shared folders in UGOS UI so permissions are correct.
+2. The example data root is `/volume1/ModelVault`; you must have NAS-user write permission. Prefer creating dedicated **ModelVault** and **docker** shared folders in UGOS UI so permissions are correct.
 3. In terminal, from a writable shared folder:
 
 ```sh
-cd /volume1/Docker
+cd /volume1/docker
  git clone https://github.com/KodjoV/model_vault.git
  cd model_vault
 chmod +x start.sh status.sh
@@ -34,7 +34,7 @@ Status and `.part` downloads persist under `/volume1/ModelVault/.vault` and `/vo
 
 ## Paths
 
-- `Docker/model_vault`: cloned GitHub source and local `.env` only.
+- `docker/model_vault`: cloned GitHub source and local `.env` only.
 - `ModelVault/models/ORG/REPO/`: saved model files, same namespace as HF.
 - `ModelVault/.vault/`: plan, status, logs and pause flags.
 
