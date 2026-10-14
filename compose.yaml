@@ -16,7 +16,7 @@ services:
       WORKERS: "${WORKERS:-2}"
       PROGRESS_INTERVAL: "${PROGRESS_INTERVAL:-3}"
     ports:
-      - "${BIND_IP:-127.0.0.1}:${WEB_PORT:-8787}:8787"
+      - "${BIND_IP:-127.0.0.1}:${WEB_PORT:-8790}:8787"
     volumes:
       - "${VAULT_PATH:?Run ./start.sh with a writable NAS path}:/vault"
       - "./models.json:/app/models.json:ro"
