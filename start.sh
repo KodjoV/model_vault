@@ -1,49 +1,90 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")"
-if ! command -v docker >/dev/null 2>&1; then echo 'Docker fehlt. Bitte Docker auf der UGREEN bereitstellen.' >&2; exit 1; fi
-if ! docker compose version >/dev/null 2>&1; then echo 'docker compose fehlt (Compose Plugin erforderlich).' >&2; exit 1; fi
-if [ ! -e .env ]; then
-  if [ "$#" -lt 1 ]; then echo 'Aufruf: ./start.sh /ABSOLUTER/NAS/PFAD/ModelVault'; exit 2; fi
+
+usage() { echo "Aufruf: ./start.sh /volume1/ModelVault    (oder existierende .env verwenden)" >&2; exit 2; }
+command -v docker >/dev/null 2>&1 || { echo "Docker CLI nicht gefunden" >&2; exit 1; }
+
+# UGREEN: ignores the admin home's unreadable ~/.docker/config.json
+export DOCKER_CONFIG="$(pwd -P)/.docker-local"
+umask 077
+mkdir -p "$DOCKER_CONFIG"
+chmod 700 "$DOCKER_CONFIG"
+
+if [ ! -f .env ]; then
+  [ "$#" -ge 1 ] || usage
   VAULT_PATH="$1"
-  case "$VAULT_PATH" in /*) ;; *) echo 'Bitte absoluten Pfad angeben.' >&2; exit 2;; esac
+  case "$VAULT_PATH" in /volume1/*) ;; *) echo "Sicherheit: Modellgewichte nur in /volume1/..., nicht auf der Systempartition." >&2; exit 2 ;; esac
+  case "$VAULT_PATH" in *'"'*|*'$'*|*'`'*|*'#'*|*$'\n'*|*' '* ) echo "Pfad bitte ohne Sonder- oder Leerzeichen waehlen." >&2; exit 2;; esac
   mkdir -p "$VAULT_PATH"
   VAULT_PATH="$(cd "$VAULT_PATH" && pwd -P)"
-  case "$VAULT_PATH" in *'"'*|*'$'*|*'`'*|*'#'*|*$'\n'*)
-    echo 'Bitte Archivpfad ohne Anfuehrungszeichen, Dollarzeichen, Backticks oder # waehlen.' >&2; exit 2;;
-  esac
-  if ! touch "$VAULT_PATH/.modelvault-write-test-$$"; then echo 'Kein Schreibrecht im Archivpfad.' >&2; exit 1; fi
+  case "$VAULT_PATH" in /volume1/*) ;; *) echo "Archivpfad zeigt nicht auf /volume1" >&2; exit 2 ;; esac
+  fs="$(df -T "$VAULT_PATH" | awk 'NR==2{print $2}')"
+  [ "$fs" = "btrfs" ] || { echo "ABBRUCH: Ziel ist '$fs', erwartet btrfs auf /volume1" >&2; exit 2; }
+  touch "$VAULT_PATH/.modelvault-write-test-$$" || { echo "Archivfreigabe nicht beschreibbar" >&2; exit 1; }
   rm -f "$VAULT_PATH/.modelvault-write-test-$$"
   if command -v python3 >/dev/null 2>&1; then
-    PASS="$(python3 -c 'import secrets;print(secrets.token_urlsafe(22))')"
-  elif command -v openssl >/dev/null 2>&1; then
-    PASS="$(openssl rand -hex 24)"
+    pass="$(python3 -c 'import secrets;print(secrets.token_urlsafe(24))')"
   else
-    echo 'Fuer ein sicheres Passwort wird python3 oder openssl auf der NAS benoetigt.' >&2; exit 1
+    pass="$(openssl rand -hex 24)"
   fi
-  PUID="$(id -u)"; PGID="$(id -g)"
   cat > .env <<ENV
-# Von start.sh einmalig erstellt. NICHT nach GitHub committen!
+# PRIVAT: niemals committen
 VAULT_PATH="$VAULT_PATH"
-PUID=$PUID
-PGID=$PGID
-# Im vertrauenswuerdigen Heimnetz via http://NAS-IP:8787; sonst SSH-Tunnel nutzen.
+PUID=$(id -u)
+PGID=$(id -g)
 BIND_IP=0.0.0.0
 WEB_PORT=8787
-UI_PASSWORD=$PASS
+UI_PASSWORD="$pass"
 HF_TOKEN=
 SELECT_TIERS=P0
 WORKERS=2
 PROGRESS_INTERVAL=3
 ENV
   chmod 600 .env
-  echo 'Neue .env erzeugt. Zugangspasswort lokal in .env gespeichert.'
-else
-  echo 'Bestehende .env wird unveraendert verwendet.'
+  echo 'Zugangsdaten in .env erzeugt. Passwort niemals auf GitHub hochladen.'
 fi
 
-docker compose up -d --build
-printf '\nMODEL VAULT gestartet. Auf der UGREEN: http://NAS-IP:8787\n'
-printf 'Benutzer: vault  |  Passwort: UI_PASSWORD aus .env\n'
-printf 'STATUS: docker compose logs -f --tail=25\n'
-printf 'PAUSE: Browser-Oberflaeche, Resume: Browser-Oberflaeche.\n'
+set -a
+# Dieses Skript erwartet eine lokal erzeugte und kontrollierte .env.
+source .env
+set +a
+case "$VAULT_PATH" in /volume1/*) ;; *) echo "ABBRUCH: VAULT_PATH muss in /volume1 liegen" >&2; exit 2 ;; esac
+[ "$(df -T "$VAULT_PATH" | awk 'NR==2{print $2}')" = btrfs ] || { echo 'ABBRUCH: kein btrfs Ziel' >&2; exit 2; }
+if ! docker info >/dev/null 2>&1; then
+  echo 'Docker-Daemon nicht zugreifbar. Teste: DOCKER_CONFIG='"$DOCKER_CONFIG"' docker ps' >&2
+  echo 'Bitte zuerst NAS-Benutzerrechte / Docker-Berechtigungen korrigieren; kein automatisches sudo.' >&2
+  exit 1
+fi
+
+if docker compose version >/dev/null 2>&1; then
+  echo 'Docker Compose vorhanden: starte compose.yaml'
+  docker compose up -d --build
+else
+  echo 'Docker Compose fehlt: verwende docker build + docker run.'
+  if docker container inspect model-vault >/dev/null 2>&1; then
+    if [ "$(docker inspect -f '{{.State.Running}}' model-vault)" = true ]; then
+      echo 'model-vault läuft bereits. Keine Daten/Container überschrieben.'
+      exit 0
+    fi
+    echo 'Vorhandener Container model-vault ist gestoppt. Starte ihn erneut.'
+    docker start model-vault
+  else
+    docker build -t model-vault:local .
+    docker run -d --name model-vault --restart unless-stopped \
+      --user "${PUID}:${PGID}" \
+      --read-only --cap-drop ALL --security-opt no-new-privileges \
+      --tmpfs /tmp:rw,nosuid,nodev,size=128m \
+      -p "${BIND_IP}:${WEB_PORT}:8787" \
+      -v "${VAULT_PATH}:/vault" -v "$(pwd -P)/models.json:/app/models.json:ro" \
+      -e "UI_PASSWORD=${UI_PASSWORD}" -e "HF_TOKEN=${HF_TOKEN:-}" \
+      -e "SELECT_TIERS=${SELECT_TIERS:-P0}" \
+      -e "WORKERS=${WORKERS:-2}" -e "PROGRESS_INTERVAL=${PROGRESS_INTERVAL:-3}" \
+      model-vault:local
+  fi
+fi
+
+echo "\nSTART erfolgreich. Browser: http://NAS-IP:${WEB_PORT} | User: vault"
+echo "Passwort lokal: grep '^UI_PASSWORD=' .env"
+echo "Logs: DOCKER_CONFIG=\"$DOCKER_CONFIG\" docker logs -f --tail=50 model-vault"
+echo "Status: ./status.sh"
