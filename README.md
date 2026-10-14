@@ -16,7 +16,7 @@ chmod +x start.sh status.sh
 ./start.sh /volume1/ModelVault
 ```
 
-`start.sh` uses host port **8790** by default (internal port 8787; avoids the existing b52-dashboard on host port 8787), and auto-creates a local `.env` password, refuses a data path off `/volume1`, and checks btrfs and write access. It uses Compose if available; otherwise Docker build/run directly, so Compose is **not required**. Docker itself must be accessible to the current user. An isolated `DOCKER_CONFIG` avoids using the NAS account's broken `~/.docker/config.json`.
+`start.sh` uses host port **8790** by default (internal port 8787; avoids the existing b52-dashboard on host port 8787), and auto-creates a local `.env` password, refuses a data path off `/volume1`, and checks btrfs and write access. Container files are explicitly world-readable inside the image for UID 1000 operation. `models.json` is baked into the image to avoid UGOS ACL issues on bind-mounted source files; rebuild the image when changing model selections. It uses Compose if available; otherwise Docker build/run directly, so Compose is **not required**. Docker itself must be accessible to the current user. An isolated `DOCKER_CONFIG` avoids using the NAS account's broken `~/.docker/config.json`.
 
 ## Progress
 
