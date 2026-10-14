@@ -16,11 +16,11 @@ chmod +x start.sh status.sh
 ./start.sh /volume1/ModelVault
 ```
 
-`start.sh` auto-creates a local `.env` password, refuses a data path off `/volume1`, and checks btrfs and write access. It uses Compose if available; otherwise Docker build/run directly, so Compose is **not required**. Docker itself must be accessible to the current user. An isolated `DOCKER_CONFIG` avoids using the NAS account's broken `~/.docker/config.json`.
+`start.sh` uses host port **8790** by default (internal port 8787; avoids the existing b52-dashboard on host port 8787), and auto-creates a local `.env` password, refuses a data path off `/volume1`, and checks btrfs and write access. It uses Compose if available; otherwise Docker build/run directly, so Compose is **not required**. Docker itself must be accessible to the current user. An isolated `DOCKER_CONFIG` avoids using the NAS account's broken `~/.docker/config.json`.
 
 ## Progress
 
-Go to `http://NAS-IP:8787` on LAN/Tailscale, log in as **vault**, and get the password from `.env` (`grep '^UI_PASSWORD=' .env`). Browser updates every 3 seconds and shows overall GiB, percent, model/file completions, MiB/s, ETA, errors, disk capacity. You can pause/resume/retry from dashboard.
+Go to `http://NAS-IP:8790` on LAN/Tailscale, log in as **vault**, and get the password from `.env` (`grep '^UI_PASSWORD=' .env`). Browser updates every 3 seconds and shows overall GiB, percent, model/file completions, MiB/s, ETA, errors, disk capacity. You can pause/resume/retry from dashboard.
 
 In SSH session:
 
@@ -42,6 +42,6 @@ P0 starts with eight repositories: YuE2, ACE-Step 1.5, MiniMax Music 3, original
 
 ## Security and limitations
 
-The web server uses Basic authentication **over HTTP**. Never port-forward port 8787. Use only trusted LAN/Tailscale or an HTTPS reverse proxy. NAS RAID1 is not a true independent backup; copy irreplaceable snapshots separately. Hugging Face repos can change, vanish, or rate-limit; plan stores an immutable revision and hash evidence. A recorded local SHA-256 is not the same as verification against the publisher unless upstream LFS SHA is known.
+The web server uses Basic authentication **over HTTP**. Never port-forward port 8790. Use only trusted LAN/Tailscale or an HTTPS reverse proxy. NAS RAID1 is not a true independent backup; copy irreplaceable snapshots separately. Hugging Face repos can change, vanish, or rate-limit; plan stores an immutable revision and hash evidence. A recorded local SHA-256 is not the same as verification against the publisher unless upstream LFS SHA is known.
 
 This is version 1: local resume and dashboard unit tests pass, but a multi-100GiB run against all live upstream endpoints has not been validated yet.
