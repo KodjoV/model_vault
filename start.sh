@@ -19,7 +19,8 @@ if [ ! -f .env ]; then
   mkdir -p "$VAULT_PATH"
   VAULT_PATH="$(cd "$VAULT_PATH" && pwd -P)"
   case "$VAULT_PATH" in /volume1/*) ;; *) echo "Archivpfad zeigt nicht auf /volume1" >&2; exit 2 ;; esac
-  fs="$(df -T "$VAULT_PATH" | awk 'NR==2{print $2}')"
+  # df -T may wrap long mapper device names on UGOS; stat reads the target filesystem directly.
+  fs="$(stat -f -c %T "$VAULT_PATH" 2>/dev/null || true)"
   [ "$fs" = "btrfs" ] || { echo "ABBRUCH: Ziel ist '$fs', erwartet btrfs auf /volume1" >&2; exit 2; }
   touch "$VAULT_PATH/.modelvault-write-test-$$" || { echo "Archivfreigabe nicht beschreibbar" >&2; exit 1; }
   rm -f "$VAULT_PATH/.modelvault-write-test-$$"
@@ -50,7 +51,8 @@ set -a
 source .env
 set +a
 case "$VAULT_PATH" in /volume1/*) ;; *) echo "ABBRUCH: VAULT_PATH muss in /volume1 liegen" >&2; exit 2 ;; esac
-[ "$(df -T "$VAULT_PATH" | awk 'NR==2{print $2}')" = btrfs ] || { echo 'ABBRUCH: kein btrfs Ziel' >&2; exit 2; }
+fs="$(stat -f -c %T "$VAULT_PATH" 2>/dev/null || true)"
+[ "$fs" = btrfs ] || { echo "ABBRUCH: Archivziel ist ${fs:-unbekannt}, erwartet btrfs" >&2; exit 2; }
 if ! docker info >/dev/null 2>&1; then
   echo 'Docker-Daemon nicht zugreifbar. Teste: DOCKER_CONFIG='"$DOCKER_CONFIG"' docker ps' >&2
   echo 'Bitte zuerst NAS-Benutzerrechte / Docker-Berechtigungen korrigieren; kein automatisches sudo.' >&2
