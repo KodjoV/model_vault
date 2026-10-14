@@ -1,0 +1,6 @@
+.env
+*.part
+__pycache__/
+*.pyc
+.vault/
+models/

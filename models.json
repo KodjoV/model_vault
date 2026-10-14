@@ -1,0 +1,21 @@
+{
+  "description": "Model Vault P0 - snapshot originals and selected quants, pinned to exact HF SHA at first planning",
+  "models": [
+    {"repo": "m-a-p/YuE2-3B", "enabled": true, "tier": "P0", "note": "YuE2 music generation full model; CC-BY-NC licensing and creator exceptions need checking", "allow_patterns": ["*"]},
+    {"repo": "m-a-p/YuE2-Vae", "enabled": true, "tier": "P0", "note": "YuE2 required audio decoder", "allow_patterns": ["*"]},
+    {"repo": "ACE-Step/Ace-Step1.5", "enabled": true, "tier": "P0", "note": "ACE-Step 1.5 local song generator; archive full upstream revision", "allow_patterns": ["*"]},
+    {"repo": "Comfy-Org/MiniMax-Music-3", "enabled": true, "tier": "P0", "note": "Optimized ComfyUI components, NOT entire ~60 GB repository; follow origin licenses", "allow_patterns": ["README*", "LICENSE*", "text_encoders/minimax_music3_text_encoder_pruned_int8_convrot.safetensors", "diffusion_models/minimax_music3_dit_int8_convrot.safetensors", "vae/minimax_music3_dav.safetensors"], "required_patterns": ["text_encoders/minimax_music3_text_encoder_pruned_int8_convrot.safetensors", "diffusion_models/minimax_music3_dit_int8_convrot.safetensors", "vae/minimax_music3_dav.safetensors"]},
+    {"repo": "abenzerps/Qwen-Image-2.1-Uncensored-GGUF", "enabled": true, "tier": "P0", "note": "Despite name reportedly ORIGINAL weights converted to GGUF; selected image component only", "allow_patterns": ["README*", "LICENSE*", "*Q6_K.gguf"], "required_patterns": ["*Q6_K.gguf"]},
+    {"repo": "AtomicChat/Qwen-Image-2.1-Turbo-Uncensored-GGUF", "enabled": true, "tier": "P0", "note": "Abliterated encoder, model component; requires denoiser + rest of pipeline", "allow_patterns": ["README*", "LICENSE*", "*Q5_K.gguf", "*mmproj*"], "required_patterns": ["*Q5_K.gguf"]},
+    {"repo": "AtomicChat/Qwen-Image-2.1-Turbo-GGUF", "enabled": true, "tier": "P0", "note": "Denoiser component for AtomicChat Turbo image workflow", "allow_patterns": ["README*", "LICENSE*", "*Q5_K.gguf"], "required_patterns": ["*Q5_K.gguf"]},
+    {"repo": "Qwen/Qwen-Image-2.1", "enabled": true, "tier": "P0", "note": "Original complete Qwen Image 2.1 pipeline; large; research/non-commercial restrictions", "allow_patterns": ["*"]},
+    {"repo": "openai/whisper-large-v3-turbo", "enabled": true, "tier": "P1", "note": "Local multilingual speech-to-text, fast", "allow_patterns": ["*"]},
+    {"repo": "openai/whisper-large-v3", "enabled": true, "tier": "P1", "note": "Classic full multilingual Whisper weights and configs; selected portable files", "allow_patterns": ["*.json", "*.txt", "*.md", "*.safetensors", "LICENSE*"]},
+    {"repo": "Qwen/Qwen3-ASR-1.7B", "enabled": true, "tier": "P1", "note": "Modern speech recognition alternative", "allow_patterns": ["*"]},
+    {"repo": "nvidia/parakeet-tdt-0.6b-v3", "enabled": true, "tier": "P1", "note": "Lightweight fast ASR", "allow_patterns": ["*"]},
+    {"repo": "Qwen/Qwen3-TTS-12Hz-1.7B-Base", "enabled": true, "tier": "P1", "note": "Local voice synthesis", "allow_patterns": ["*"]},
+    {"repo": "hexgrad/Kokoro-82M", "enabled": true, "tier": "P1", "note": "Small low-overhead speech synthesis", "allow_patterns": ["*"]},
+    {"repo": "openbmb/MiniCPM-V-4.7-35B-A3B-gguf", "enabled": true, "tier": "P1", "note": "Multimodal local visual understanding, Q4_K_M plus metadata/mmproj", "allow_patterns": ["README*", "LICENSE*", "*Q4_K_M.gguf", "*mmproj*", "*.json", "*.txt"], "required_patterns": ["*Q4_K_M.gguf"]},
+    {"repo": "krea/Krea-2-Raw", "enabled": false, "tier": "P1", "note": "GATED: enable only once access granted; license must be accepted", "allow_patterns": ["*"]}
+  ]
+}

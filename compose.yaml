@@ -1,0 +1,23 @@
+services:
+  model-vault:
+    build: .
+    container_name: model-vault
+    restart: unless-stopped
+    user: "${PUID:-1000}:${PGID:-1000}"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    tmpfs:
+      - /tmp:size=128m
+    environment:
+      HF_TOKEN: "${HF_TOKEN:-}"
+      UI_PASSWORD: "${UI_PASSWORD:?Run ./start.sh /absolute/NAS/share/ModelVault first}"
+      SELECT_TIERS: "${SELECT_TIERS:-P0}"
+      WORKERS: "${WORKERS:-2}"
+      PROGRESS_INTERVAL: "${PROGRESS_INTERVAL:-3}"
+    ports:
+      - "${BIND_IP:-127.0.0.1}:${WEB_PORT:-8787}:8787"
+    volumes:
+      - "${VAULT_PATH:?Run ./start.sh with a writable NAS path}:/vault"
+      - "./models.json:/app/models.json:ro"
+    stop_grace_period: 45s
