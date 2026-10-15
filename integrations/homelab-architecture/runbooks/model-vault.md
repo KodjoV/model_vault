@@ -1,72 +1,84 @@
 <!-- Managed bootstrap entry: Model Vault. Canonical copy lives in Forgejo homelab-architecture. -->
 # Runbook: Model Vault auf UGREEN
 
-**Dienst:** `model-vault` · **Host:** UGREEN DXP4800 Pro  
-**Stand:** 14.10.2026 · **Code:** https://github.com/KodjoV/model_vault
+**Stand:** 15.10.2026 · **Zustand:** P0 + P1 abgeschlossen, Offline-SHA-256-Prüfung durch Betreiber als erfolgreich gemeldet, Docker-Container heruntergefahren.  
+**Code:** https://github.com/KodjoV/model_vault · **Host:** UGREEN NASync DXP4800 Pro
 
-## Status und Fortschritt
+## Ruhezustand (Normalbetrieb nach Archivierung)
+
+Im Ruhezustand laufen **weder der Download-Dienst noch das Webdashboard**. Die gespeicherten Daten bleiben unabhängig vom Container erhalten:
+
+- `/volume1/ModelVault/models/` – Modellgewichte und pro Repository `MODEL_VAULT_MANIFEST.json` / `MODEL_VAULT_SHA256SUMS.txt`
+- `/volume1/ModelVault/.vault/` – Planung, letzter Status, Ereignislogs
+- `/volume1/docker/model_vault/` – Docker-Konfiguration, Skripte, lokale `.env`
+
+**P0:** 8 Repositories, 77,16 GiB, 111 Dateien (Live-Nachweis vom 14.10.2026).  
+**P0 + P1:** 15 Repositories, 123,19 GiB und 254 Dateien als **zuletzt übermittelte Planwerte** vom 15.10.2026, 09:04:28 UTC. Anschließend Downloadende + SHA-256-Erfolg vom Betreiber bestätigt. Die abschließende detaillierte Statusausgabe wurde nicht mitgeteilt.  
+**P1:** Whisper Large V3 + Turbo, Qwen3-ASR, Parakeet, Qwen3-TTS, Kokoro, MiniCPM-V. `krea/Krea-2-Raw` deaktiviert.
+
+## Reiner Statuscheck ohne laufenden Container
 
 ```bash
 cd /volume1/docker/model_vault
 ./status.sh
-sudo env DOCKER_CONFIG="$PWD/.docker-local" docker ps --filter name=model-vault
-sudo env DOCKER_CONFIG="$PWD/.docker-local" docker logs --tail 80 model-vault
+sudo docker ps -a --filter name=model-vault
 ```
 
-Weboberfläche: `http://<NAS-IP>:8790`. Benutzername `vault`; Passwort **nur lokal** in `.env` (nicht in Forgejo dokumentieren).
+**Achtung:** `./status.sh` liest die zuletzt persistierte `status.json` und zeigt deshalb **auch bei abgeschaltetem Container einen gespeicherten Abschlussstatus**, keine aktuelle Dienst-Lebendigkeit.
 
-**Erfolgsmessung P0 (14.10.2026, 15:55:42 UTC):** 100,0 %, 77,16 GiB / 77,16 GiB; 8/8 Repos; 111/111 Dateien. `complete` bezieht sich auf die konfigurierte Auswahl.
+## Unabhängige SHA-256-Prüfung wiederholen
 
-## Betriebsstart / Neustart
+```bash
+cd /volume1/ModelVault/models || exit 1
+count=0
+failed=0
+while IFS= read -r -d '' sums; do
+  count=$((count + 1))
+  dir=$(dirname "$sums")
+  if (cd "$dir" && sha256sum -c --quiet MODEL_VAULT_SHA256SUMS.txt); then
+    echo "OK: $dir"
+  else
+    echo "FEHLER: $dir"
+    failed=$((failed + 1))
+  fi
+done < <(find . -type f -name MODEL_VAULT_SHA256SUMS.txt -print0)
+echo "Geprüfte Archive: $count | Fehler: $failed"
+```
+
+Bei fehlendem Manifest oder Fehlern **nicht** den gesamten Modellordner löschen; betroffene Datei und Revision gezielt untersuchen. Die SHA-256-Prüfung gegen eigene Manifeste ist kein separater Restore-Test.
+
+## Downloadmodus bei Bedarf wieder aktivieren
 
 ```bash
 cd /volume1/docker/model_vault
 sudo ./start.sh /volume1/ModelVault
+sudo docker logs --tail 80 model-vault
+./status.sh
 ```
 
-`start.sh` berücksichtigt vorhandene `.env` und verwendet Docker Compose, falls verfügbar. Das Container-Image wird aus `Dockerfile` gebaut. Docker benötigt in dieser Installation `sudo` (Socket `root:docker`, Benutzer nicht in Gruppe `docker`).
+Das Skript bewahrt die bestehende `.env`; mit `SELECT_TIERS=P0,P1` sind beide Stufen ausgewählt. Bereits erfasste vollständige Dateien werden nach Größenkontrolle wiederverwendet. `models.json` ist ins Image eingebaut; bei Änderung der Modellauswahl mit Docker Compose neu bauen. Port **8790** ist dann das Dashboard (`http://<NAS-IP>:8790`, HTTP Basic Auth, User `vault`). Passwort ausschließlich aus lokaler `.env`, nicht in Forgejo speichern.
 
-Wenn das Dashboard keine Antwort liefert, Container und Logs prüfen:
-
-```bash
-sudo env DOCKER_CONFIG="$PWD/.docker-local" docker compose ps
-sudo env DOCKER_CONFIG="$PWD/.docker-local" docker logs --tail 100 model-vault
-```
-
-## Wiederanlauf, Daten und Prüfsummen
-
-- Code und Konfiguration: `/volume1/docker/model_vault`
-- Konfiguration `.env` privat halten; **nicht ersetzen** bei Updates.
-- Dateidaten: `/volume1/ModelVault/models`; Betriebsstatus: `/volume1/ModelVault/.vault`.
-- `.part`-Dateien zeigen unvollständige Downloads an; nicht manuell aufräumen, solange ein Download läuft.
-- `plan.json`, `status.json` und SHA-256-Manifest/Metadaten bei Backup mit aufnehmen.
-- Nach NAS-Neustart sollte Docker den Dienst automatisch starten (`restart: unless-stopped`).
-- Erfolgreicher Dateidownload ist **kein** End-to-End-Inferenztest. Unabhängiger Restore-Test steht noch aus.
-
-## GitHub aktualisieren ohne installiertes Git
+**Danach wieder herunterfahren:**
 
 ```bash
 cd /volume1/docker/model_vault
-curl -fL --retry 3 -o model_vault-main.tar.gz \
-  https://github.com/KodjoV/model_vault/archive/refs/heads/main.tar.gz
-
-tar -tzf model_vault-main.tar.gz >/dev/null
-# Achtung: NICHT blind über bestehende .env oder laufende Konfiguration entpacken.
-# Vor Update: alte Codeversion sichern, laufenden Dienst planen/stoppen;
-# danach Skripte selektiv oder über temporäres Verzeichnis übernehmen und neu bauen.
+sudo docker compose down
 ```
 
-## Bekannte UGREEN-Besonderheiten
+Entfernt nur den Compose-Container und das zugehörige Netzwerk, **nicht** die Modelle, den Plan oder das lokal gebaute Image. Ohne erneuten Start gibt es keinen laufenden Downloadserver.
 
-1. `/volume1` = Btrfs-Datenvolume; Systemoverlay nicht für Modellgewichte verwenden.
-2. Freigabe heißt **`docker`** (nicht `Docker`).
-3. `df -T` zeigt bei langem Mapper-Gerätenamen umbrochene Zeilen; Btrfs zuverlässig mit `stat -f -c %T /volume1/ModelVault` bestimmen.
-4. Docker-API-Socket `root:docker`; `B52_Admin` hat keinen direkten Socketzugriff: `sudo` einsetzen, **keine** pauschalen Socket-Rechte.
-5. Host-Port **8787** ist bereits durch `b52-dashboard` belegt. Model Vault verwendet **8790 → 8787**.
-6. Ursprünglich `/app/vault.py: Permission denied` durch UGOS-ACL-bedingte Image-Dateimodi; `Dockerfile` setzt nun Leserechte im Image. `models.json` wird ins Image kopiert; nach Planänderung Containerimage neu bauen.
+## UGREEN-Spezifika
 
-## Weitere Stufen
+1. `/volume1` ist Btrfs; niemals Modellgewichte im OS-Overlay speichern.
+2. Freigabe `/volume1/docker` (kleingeschrieben).
+3. `stat -f -c %T /volume1/ModelVault` prüft den Dateisystemtyp zuverlässig; `df -T` kann umbrochene Mapper-Zeilen ausgeben.
+4. Docker-Socket gehört `root:docker`; `B52_Admin` benötigt `sudo`.
+5. Host-Port 8787 nutzt bereits `b52-dashboard`. Model Vault: 8790 (Host) → 8787 (Container).
+6. `Dockerfile` setzt die Leserechte im Image explizit, da UGOS-ACLs andernfalls `/app/vault.py: Permission denied` auslösen konnten.
+7. Für Code-Updates ohne Git: GitHub-Archiv zunächst in separaten temporären Ordner extrahieren und nur geänderte Dateien selektiv übernehmen; die lokale `.env` niemals überschreiben.
 
-Die Konfiguration `models.json` definiert P0 und P1. P1 enthält Whisper, Qwen3-ASR, Parakeet, Qwen3-TTS, Kokoro, MiniCPM-V; Krea Raw bleibt gesperrt, bis legitimer Zugang vorliegt.
+## Noch offen
 
-P1 **nicht** durch Änderung allein als abgeschlossen dokumentieren – erst nach neuer Statusausgabe.
+- Unabhängiges Backup auf einem zweiten Medium und dokumentierter Wiederherstellungstest.
+- Späterer Einsatz ausgewählter Modelle auf b52; Modellarchivierung garantiert keine vollständige Inferenz-Pipeline.
+- Lizenzprüfung bei tatsächlicher Anwendung; RAID1 ist kein Offsite-Backup.
