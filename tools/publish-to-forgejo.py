@@ -117,7 +117,7 @@ def main():
             print("Unverändert:", path)
             continue
         payload = {"content": base64.b64encode(content).decode("ascii"),
-                   "message": "docs(homelab): record UGREEN Model Vault P0 archive (77.16 GiB, 8 repos)",
+                   "message": "docs(homelab): update Model Vault archive inventory and runbook",
                    "branch": branch}
         if sha:
             payload["sha"] = sha
