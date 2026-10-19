@@ -54,7 +54,7 @@ Bei einem Abbruch denselben Befehl erneut ausführen. Fertige Dateien werden üb
 
 ### Wichtige Grenzen
 
-- Voraussetzung: Datenvolume `/volume1` (UGREEN), existierender Ordner `/volume1/ModelVault/models/peasantsmith` und Schreibrechte.
+- Voraussetzung: Datenvolume `/volume1` (UGREEN), vorhandene Freigabe `/volume1/ModelVault` und Schreibrechte. Die Unterordner `models/peasantsmith/…` erzeugt das Skript selbst.
 - Voraussetzungen: `curl`, `sha256sum`, `df`, `du`, `awk`, `sh`.
 - Das Skript lädt nur die GGUF-Gewichte, **nicht** das optionale Vision-Modul oder DFlash2.
 - Modelle brauchen freien Speicherplatz und lang laufende Verbindung. Bei 100 Mbit/s dauern 210,7 GB allein rechnerisch mindestens etwa 4,7 Stunden (ohne Protokoll-Overhead).
