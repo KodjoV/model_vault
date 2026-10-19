@@ -11,9 +11,21 @@ case "$DEST" in
   /volume1/*) ;;
   *) echo "ERROR: target must be under /volume1 (NAS data volume): $DEST" >&2; exit 2 ;;
 esac
+# Allow Model Vault's normal ORG/REPO tree to be created on first download.
+# Still refuse an unknown missing share folder.
 if [ ! -d "$(dirname "$DEST")" ]; then
-  echo "ERROR: parent folder does not exist: $(dirname "$DEST")" >&2
-  exit 2
+  case "$DEST" in
+    /volume1/ModelVault/*)
+      if [ ! -d /volume1/ModelVault ]; then
+        echo "ERROR: ModelVault data share not found: /volume1/ModelVault" >&2
+        exit 2
+      fi
+      ;;
+    *)
+      echo "ERROR: parent folder does not exist: $(dirname "$DEST")" >&2
+      exit 2
+      ;;
+  esac
 fi
 for cmd in curl sha256sum df du awk mkdir mv; do
   command -v "$cmd" >/dev/null 2>&1 || { echo "ERROR: missing tool: $cmd" >&2; exit 2; }
