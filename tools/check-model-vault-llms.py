@@ -13,7 +13,7 @@ import os
 import re
 
 ROOT = Path("/volume1/ModelVault/models")
-MIN_SHARD = 1_000_000_000  # Tiny error responses / pointer files aren't weights.
+MIN_SHARD = 4096  # Valid final GGUF shards can be smaller than 1 GB; check magic too.
 QUANTS = (
     "IQ2_XXS_S", "IQ3_XXS", "IQ3_XS", "IQ3_S", "IQ3_M",
     "IQ4_XS", "IQ4_NL", "IQ4_S", "IQ4_M", "Q3_K_XL",
