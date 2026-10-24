@@ -233,7 +233,7 @@ def worker():
         record("waiting", message="Warte auf Abschluss des aktuell laufenden Model Vault")
         initially_running = docker_running()
         last_log = time.monotonic()
-        seen_once = False
+        completed_stamp = None
         while True:
             running = docker_running()
             if initially_running and not running:
@@ -246,9 +246,10 @@ def worker():
                     raise RuntimeError("Alter Vault gestoppt, letzter Status nicht komplett")
                 break
             done = finished_status()
-            if done and seen_once:
+            stamp = json.loads(STATUS.read_text(encoding="utf-8")).get("updated_at") if done else None
+            if done and completed_stamp is not None and stamp != completed_stamp:
                 break
-            seen_once = done
+            completed_stamp = stamp
             if time.monotonic() - last_log > 300:
                 print("Warte weiter; bestehende Downloads bleiben unveraendert", flush=True)
                 last_log = time.monotonic()
