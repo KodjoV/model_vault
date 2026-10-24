@@ -96,11 +96,12 @@ def verify_one(root: Path, model: dict) -> tuple[int, int, int]:
     return checked, remote_matched, total_bytes
 
 
-def run(root: Path, catalog: Path) -> int:
+def run(root: Path, catalog: Path, tier: str = "ABL") -> int:
     data = json.loads(catalog.read_text(encoding="utf-8"))
-    models = [m for m in data["models"] if m.get("tier") == ABL_TIER and m.get("enabled", True)]
-    if len(models) != 6:
-        raise ValueError(f"Expected 6 ABL repos, got {len(models)}")
+    models = [m for m in data["models"] if m.get("tier") == tier and m.get("enabled", True)]
+    expected = {"ABL": 6, "DS41": 2}[tier]
+    if len(models) != expected:
+        raise ValueError(f"Expected {expected} {tier} repos, got {len(models)}")
     total_files = total_upstream = total_bytes = 0
     failures = []
     for model in models:
@@ -112,7 +113,7 @@ def run(root: Path, catalog: Path) -> int:
         except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError) as e:
             print(f"FAIL {model['repo']}: {e}", file=sys.stderr, flush=True)
             failures.append(model["repo"])
-    print(f"SUMMARY OK={len(models) - len(failures)}/6 | "
+    print(f"SUMMARY tier={tier} OK={len(models) - len(failures)}/{len(models)} | "
           f"files={total_files} | upstream LFS={total_upstream}/{total_files} | "
           f"size={total_bytes / (1024**3):.2f} GiB", flush=True)
     if total_upstream < total_files:
@@ -125,10 +126,11 @@ def run(root: Path, catalog: Path) -> int:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path("/volume1/ModelVault"))
+    parser.add_argument("--tier", choices=["ABL", "DS41"], default="ABL")
     parser.add_argument("--catalog", type=Path,
                         default=Path(__file__).resolve().parents[1] / "models.json")
     args = parser.parse_args()
-    return run(args.root, args.catalog)
+    return run(args.root, args.catalog, args.tier)
 
 
 if __name__ == "__main__":
