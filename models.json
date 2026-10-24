@@ -348,6 +348,33 @@
       "required_patterns": [
         "dspark-DeepSeek-V4.1-Flash-1017-Q8_0.gguf"
       ]
+    },
+    {
+      "repo": "orcarouter/DeepSeek-V4.1-Flash-1017-abliterated-GGUF",
+      "enabled": true,
+      "tier": "ORCA",
+      "note": "GATED HF model; archive recommended Mix-256G (7 shards incl IQ4_NL Engram) and imatrix; ~348 GB; needs accepted access + HF_TOKEN. llama.cpp special DeepSeek PR, not validated with Strata; do not run as Model Vault admin.",
+      "allow_patterns": [
+        "Mix-256G/DeepSeek-V4.1-Flash-1017-abliterated-Mix-256G-00001-of-00007.gguf",
+        "Mix-256G/DeepSeek-V4.1-Flash-1017-abliterated-Mix-256G-00002-of-00007.gguf",
+        "Mix-256G/DeepSeek-V4.1-Flash-1017-abliterated-Mix-256G-00003-of-00007.gguf",
+        "Mix-256G/DeepSeek-V4.1-Flash-1017-abliterated-Mix-256G-00004-of-00007.gguf",
+        "Mix-256G/DeepSeek-V4.1-Flash-1017-abliterated-Mix-256G-00005-of-00007.gguf",
+        "Mix-256G/DeepSeek-V4.1-Flash-1017-abliterated-Mix-256G-00006-of-00007.gguf",
+        "Mix-256G/DeepSeek-V4.1-Flash-1017-abliterated-Mix-256G-00007-of-00007.gguf",
+        "imatrix.gguf",
+        "README.md"
+      ],
+      "required_patterns": [
+        "Mix-256G/DeepSeek-V4.1-Flash-1017-abliterated-Mix-256G-00001-of-00007.gguf",
+        "Mix-256G/DeepSeek-V4.1-Flash-1017-abliterated-Mix-256G-00002-of-00007.gguf",
+        "Mix-256G/DeepSeek-V4.1-Flash-1017-abliterated-Mix-256G-00003-of-00007.gguf",
+        "Mix-256G/DeepSeek-V4.1-Flash-1017-abliterated-Mix-256G-00004-of-00007.gguf",
+        "Mix-256G/DeepSeek-V4.1-Flash-1017-abliterated-Mix-256G-00005-of-00007.gguf",
+        "Mix-256G/DeepSeek-V4.1-Flash-1017-abliterated-Mix-256G-00006-of-00007.gguf",
+        "Mix-256G/DeepSeek-V4.1-Flash-1017-abliterated-Mix-256G-00007-of-00007.gguf",
+        "imatrix.gguf"
+      ]
     }
   ]
 }
