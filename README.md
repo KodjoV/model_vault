@@ -6,6 +6,14 @@
 > Die Größe 123,19 GiB und die 254 Dateien stammen aus der letzten detaillierten *Zwischenstatus*-Ausgabe; der vollständige finale Status wurde nicht übermittelt. Archivierung ist kein End-to-End-Inferenztest oder unabhängiges Backup.
 
 
+## P0: DeepSeek V4.1-Flash 1017 mit Strata
+
+Neues isoliertes Tier `DS41` für die **IQ2_XS**-Quantisierung mit vier Backbone-GGUFs, Engram-Tabelle und Unsloth-DSpark-Q8_0-Drafter; ca. **274 GB** Gesamtarchiv. Alle Downloads laufen über den bestehenden Model Vault und ändern keine Strata- oder llama-swap-Konfiguration. [Vorgehen und B52-Testplan](docs/DEEPSEEK_V41_PRIORITY_2026-10.md). **Wichtig:** Strata Terminal 0.2.4.1 + eigener `strata-dsv41`-Engine benötigt; diese Software ist noch nicht auf B52 eingerichtet. Der Download beginnt erst, wenn die lokale `.env` auf `SELECT_TIERS=DS41` gesetzt und der NAS-Dienst bewusst neu gestartet wird. Laufende ABL-Downloads zuvor prüfen.
+
+## Neue Abliterated-Auswahl (ABL)
+
+Sechs gezielt ausgewählte GGUF-Modelle inklusive passender MTP-/Bildmodule liegen im separaten Katalog-Tier `ABL` (kein Download allein durch den GitHub-Commit). Anleitung für das NAS und SHA256-Nachprüfung: [Abliterated six-model archive](docs/ABLITERATED_SIX_2026-10.md). `SELECT_TIERS=ABL` wählen, bevor der Vault bewusst neu gestartet wird. P0/P1 bleiben unberührt.
+
 Private/offline-capable model archive: pinned Hugging Face commits, resumable HTTP downloads, SHA-256 manifests, live dashboard and CLI status. **Only scripts belong in GitHub; model weights, credentials and status live on the NAS.**
 
 ## UGREEN first setup
