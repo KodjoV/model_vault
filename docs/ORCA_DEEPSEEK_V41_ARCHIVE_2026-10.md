@@ -57,11 +57,11 @@ the linked PR; do not use an unreviewed moving `main` branch:
 
 ```sh
 cd /volume1/docker/model_vault && \
-curl -fLsS --retry 3 https://raw.githubusercontent.com/KodjoV/model_vault/LAUNCHER_COMMIT/tools/start-orca-nas.sh -o start-orca-nas.sh && \
+curl -fLsS --retry 3 https://raw.githubusercontent.com/KodjoV/model_vault/cd26da4cf37f2f57fd36bb78dc9cc40eddbabda4/tools/start-orca-nas.sh -o start-orca-nas.sh && \
 bash start-orca-nas.sh
 ```
 
-Replace `LAUNCHER_COMMIT` with the reviewed GitHub commit from the final
+Replace `cd26da4cf37f2f57fd36bb78dc9cc40eddbabda4` with the reviewed GitHub commit from the final
 PR response. This starter validates the catalog, checks free space and HF
 token presence, preserves local backups of `.env` and `models.json`,
 and runs the existing Compose service with `SELECT_TIERS=ORCA`.
