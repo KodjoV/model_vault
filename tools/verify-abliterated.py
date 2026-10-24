@@ -99,7 +99,7 @@ def verify_one(root: Path, model: dict) -> tuple[int, int, int]:
 def run(root: Path, catalog: Path, tier: str = "ABL") -> int:
     data = json.loads(catalog.read_text(encoding="utf-8"))
     models = [m for m in data["models"] if m.get("tier") == tier and m.get("enabled", True)]
-    expected = {"ABL": 6, "DS41": 2}[tier]
+    expected = {"ABL": 6, "DS41": 2, "ORCA": 1}[tier]
     if len(models) != expected:
         raise ValueError(f"Expected {expected} {tier} repos, got {len(models)}")
     total_files = total_upstream = total_bytes = 0
@@ -126,7 +126,7 @@ def run(root: Path, catalog: Path, tier: str = "ABL") -> int:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path("/volume1/ModelVault"))
-    parser.add_argument("--tier", choices=["ABL", "DS41"], default="ABL")
+    parser.add_argument("--tier", choices=["ABL", "DS41", "ORCA"], default="ABL")
     parser.add_argument("--catalog", type=Path,
                         default=Path(__file__).resolve().parents[1] / "models.json")
     args = parser.parse_args()
