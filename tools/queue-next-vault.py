@@ -48,8 +48,15 @@ ESTIMATED_BYTES = {"DS41": 274_000_000_000, "OPEN3": 585_000_000_000}
 
 
 def record(state: str, **kwargs):
-    document = {"state": state, "updated_utc": datetime.now(timezone.utc).isoformat(),
-                "tiers": list(TIERS), **kwargs}
+    previous = {}
+    if QUEUE_STATUS.is_file():
+        try:
+            previous = json.loads(QUEUE_STATUS.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            pass
+    document = {**previous, "state": state,
+                "updated_utc": datetime.now(timezone.utc).isoformat(),
+                "pid": os.getpid(), "tiers": list(TIERS), **kwargs}
     tmp = QUEUE_STATUS.with_suffix(".new")
     tmp.write_text(json.dumps(document, indent=2) + "\n", encoding="utf-8")
     tmp.replace(QUEUE_STATUS)
@@ -221,7 +228,7 @@ def worker():
         try:
             fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError:
-            record("duplicate", message="Queue-Watcher laeuft schon")
+            print("Queue-Watcher laeuft bereits; kein zweiter Start.", flush=True)
             return
         record("waiting", message="Warte auf Abschluss des aktuell laufenden Model Vault")
         initially_running = docker_running()
@@ -253,6 +260,18 @@ def worker():
 
 def install():
     require_environment()
+    # Check before writing shared pending files. Existing queue must not be changed.
+    if QUEUE_STATUS.exists():
+        old = json.loads(QUEUE_STATUS.read_text(encoding="utf-8"))
+        if old.get("state") in ("waiting", "switching") and old.get("pid"):
+            try:
+                os.kill(old["pid"], 0)
+                cmdline = Path(f"/proc/{old['pid']}/cmdline").read_bytes()
+                if b"queue-next-vault.py" in cmdline:
+                    print(f"Queue bereits aktiv (PID {old['pid']})")
+                    return
+            except (ProcessLookupError, PermissionError, FileNotFoundError):
+                pass
     # Fetch and validate now, while the current downloader runs unchanged.
     catalog = remote_text("models.json")
     verifier = remote_text("tools/verify-abliterated.py")
@@ -261,15 +280,6 @@ def install():
         raise RuntimeError("Archivpruefer fehlt oder ist veraltet")
     PENDING.write_text(catalog, encoding="utf-8")
     VERIFY_PENDING.write_text(verifier, encoding="utf-8")
-    if QUEUE_STATUS.exists():
-        old = json.loads(QUEUE_STATUS.read_text(encoding="utf-8"))
-        if old.get("state") in ("waiting", "switching") and old.get("pid"):
-            try:
-                os.kill(old["pid"], 0)
-                print(f"Queue bereits aktiv (PID {old['pid']})")
-                return
-            except ProcessLookupError:
-                pass
     with LOG.open("a", encoding="utf-8") as log:
         proc = subprocess.Popen(
             [sys.executable, str(Path(__file__).resolve()), "worker"],
