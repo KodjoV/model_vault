@@ -174,12 +174,12 @@ def missing_bytes(merged: dict) -> int:
 
 
 def store_file(target: Path, content: str, mode: int):
-    previous = target.stat() if target.exists() else None
+    # New helper files inherit the NAS installation owner, not root.
+    previous = target.stat() if target.exists() else (CODE / "models.json").stat()
     temp = target.with_name(target.name + ".queue.new")
     temp.write_text(content, encoding="utf-8")
     os.chmod(temp, mode)
-    if previous is not None:
-        os.chown(temp, previous.st_uid, previous.st_gid)
+    os.chown(temp, previous.st_uid, previous.st_gid)
     os.replace(temp, target)
 
 
