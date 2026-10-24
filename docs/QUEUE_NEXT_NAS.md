@@ -17,12 +17,12 @@ Der Helfer fügt nur die bereits im Github-PR enthaltenen fünf Repo-Einträge
 ```sh
 cd /volume1/docker/model_vault && \
 curl -fLsS --retry 3 \
-  https://raw.githubusercontent.com/KodjoV/model_vault/QUEUE_COMMIT/tools/queue-next-vault.py \
+  https://raw.githubusercontent.com/KodjoV/model_vault/67fbc76e992c975ed6e366803154a84338c8fd73/tools/queue-next-vault.py \
   -o tools/queue-next-vault.py && \
 sudo python3 tools/queue-next-vault.py install
 ```
 
-`QUEUE_COMMIT` durch den geprüften vollen Commit aus dem GitHub-PR ersetzen.
+`67fbc76e992c975ed6e366803154a84338c8fd73` durch den geprüften vollen Commit aus dem GitHub-PR ersetzen.
 Der Befehl lädt nur einen kleinen Helfer herunter und startet einen vom
 SSH-Fenster getrennten Prozess auf dem NAS. Er ändert zu diesem Zeitpunkt weder
 `.env`, den laufenden Container noch llama-swap oder Strata.
