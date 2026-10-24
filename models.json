@@ -375,6 +375,59 @@
         "Mix-256G/DeepSeek-V4.1-Flash-1017-abliterated-Mix-256G-00007-of-00007.gguf",
         "imatrix.gguf"
       ]
+    },
+    {
+      "repo": "huihui-ai/Huihui-GLM-5.3-Flash-abliterated-GGUF",
+      "enabled": true,
+      "tier": "OPEN3",
+      "note": "P0 public download: UD-IQ2_XXS, four exact GGUF shards + BF16 vision projector; abliterated GLM 5.3 Flash; separate llama.cpp test; not equal to existing Maya-S24/M",
+      "allow_patterns": [
+        "UD-IQ2_XXS/GLM-5.3-Flash-UD-IQ2_XXS-00001-of-00004.gguf",
+        "UD-IQ2_XXS/GLM-5.3-Flash-UD-IQ2_XXS-00002-of-00004.gguf",
+        "UD-IQ2_XXS/GLM-5.3-Flash-UD-IQ2_XXS-00003-of-00004.gguf",
+        "UD-IQ2_XXS/GLM-5.3-Flash-UD-IQ2_XXS-00004-of-00004.gguf",
+        "mmproj-model-bf16.gguf",
+        "README.md"
+      ],
+      "required_patterns": [
+        "UD-IQ2_XXS/GLM-5.3-Flash-UD-IQ2_XXS-00001-of-00004.gguf",
+        "UD-IQ2_XXS/GLM-5.3-Flash-UD-IQ2_XXS-00002-of-00004.gguf",
+        "UD-IQ2_XXS/GLM-5.3-Flash-UD-IQ2_XXS-00003-of-00004.gguf",
+        "UD-IQ2_XXS/GLM-5.3-Flash-UD-IQ2_XXS-00004-of-00004.gguf",
+        "mmproj-model-bf16.gguf"
+      ]
+    },
+    {
+      "repo": "ggml-org/GLM-5.3-Flash-GGUF",
+      "enabled": true,
+      "tier": "OPEN3",
+      "note": "P1 public original GLM 5.3 comparison, Q2_K_S two GGUF shards + matching MTP Q4_0 and Q8 vision projector. No other quants. Distinct from existing Maya S24/M.",
+      "allow_patterns": [
+        "GLM-5.3-Flash-Q2_K_S-00001-of-00002.gguf",
+        "GLM-5.3-Flash-Q2_K_S-00002-of-00002.gguf",
+        "mtp-GLM-5.3-Flash-Q4_0.gguf",
+        "mmproj-GLM-5.3-Flash-Q8_0.gguf",
+        "README.md"
+      ],
+      "required_patterns": [
+        "GLM-5.3-Flash-Q2_K_S-00001-of-00002.gguf",
+        "GLM-5.3-Flash-Q2_K_S-00002-of-00002.gguf",
+        "mtp-GLM-5.3-Flash-Q4_0.gguf",
+        "mmproj-GLM-5.3-Flash-Q8_0.gguf"
+      ]
+    },
+    {
+      "repo": "audreyt/DeepSeek-V4.1-Flash-Abliterated-GGUF",
+      "enabled": true,
+      "tier": "OPEN3",
+      "note": "P2 public DeepSeek V4.1 Flash 1017 Maya-XS Abliterated 365.7 GB ds4-only native GGUF, ~107.35 GiB resident + disk Engram; NOT llama.cpp/Strata generic GGUF; no B52 runtime test yet",
+      "allow_patterns": [
+        "DeepSeek-V4.1-Flash-1017-Maya-XS-Abliterated.gguf",
+        "README.md"
+      ],
+      "required_patterns": [
+        "DeepSeek-V4.1-Flash-1017-Maya-XS-Abliterated.gguf"
+      ]
     }
   ]
 }
