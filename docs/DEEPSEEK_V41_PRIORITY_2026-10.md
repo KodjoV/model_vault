@@ -70,8 +70,16 @@ This launches the existing container that uses HTTPS + HTTP Range/resume and
 the existing local dashboard; it does **not** need the Hugging Face CLI.
 The selected four shards, Engram, and DSpark arrive on NAS. No GPU service starts.
 
-After all DS41 downloads are complete: validate manifest hashes again
-against local files (offline SHA256). Save the two full revision SHA values
+After all DS41 downloads are complete, rehash both archives with the shared read-only verifier:
+
+```sh
+cd /volume1/docker/model_vault || exit 1
+python3 tools/verify-abliterated.py --tier DS41 --root /volume1/ModelVault
+```
+
+This reads the entire ~274 GB and stops on any missing, changed, or wrong-size file.
+It also verifies against any upstream LFS SHA256 recorded in the manifests.
+ Save the two full revision SHA values
 from `MODEL_VAULT_MANIFEST.json`. For files with a publisher-provided
 SHA256, compare them against it; where it is absent, keep the recorded local
 digest and note the limitation.
