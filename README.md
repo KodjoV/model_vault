@@ -6,6 +6,10 @@
 > Die Größe 123,19 GiB und die 254 Dateien stammen aus der letzten detaillierten *Zwischenstatus*-Ausgabe; der vollständige finale Status wurde nicht übermittelt. Archivierung ist kein End-to-End-Inferenztest oder unabhängiges Backup.
 
 
+## Drei öffentliche GGUFs für B52-Vergleich (OPEN3)
+
+Separates Tier `OPEN3`: Huihui GLM-5.3-Flash Abliterated UD-IQ2_XXS (vier Teile + Vision), ggml-org GLM-5.3-Flash Q2_K_S (zwei Teile + MTP Q4_0 + Vision) und audreyt DeepSeek V4.1 Flash 1017 Maya-XS Abliterated (eine ds4-spezifische GGUF). Zusammen ca. 585 GB, mindestens 650 GB freier Platz erforderlich. Die bereits archivierten GLM-Maya-S24/M bleiben erhalten und werden **nicht** erneut geladen. [Runbook](docs/PUBLIC_THREE_GGUF_2026-10.md) · [NAS-Starthelfer](tools/start-open3-nas.sh). Keine Registrierung für die öffentlich sichtbaren Quell-Repos erkennbar; echte Transfers auf dem NAS noch nicht getestet.
+
 ## OrcaRouter DeepSeek V4.1 Abliterated (ORCA)
 
 Separates **ORCA**-Tier für die gegatete Mix-256G-Fassung (7 GGUF-Dateien, Engram enthalten) und die Kalibrierungsdatei `imatrix.gguf` – zusammen ca. 348 GB. **Langfristige Sicherung, kein B52-Strata-Test:** 235,8 GB Gewichte im Arbeitsspeicher ohne Engram; andere Quantisierung als unser ISTA-DeepSeek. Zugangsbedingungen bei Hugging Face zuerst annehmen und `HF_TOKEN` nur in der lokalen `.env` setzen. [Kurzanleitung](docs/ORCA_DEEPSEEK_V41_ARCHIVE_2026-10.md).
