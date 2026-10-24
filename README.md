@@ -6,6 +6,10 @@
 > Die Größe 123,19 GiB und die 254 Dateien stammen aus der letzten detaillierten *Zwischenstatus*-Ausgabe; der vollständige finale Status wurde nicht übermittelt. Archivierung ist kein End-to-End-Inferenztest oder unabhängiges Backup.
 
 
+## OrcaRouter DeepSeek V4.1 Abliterated (ORCA)
+
+Separates **ORCA**-Tier für die gegatete Mix-256G-Fassung (7 GGUF-Dateien, Engram enthalten) und die Kalibrierungsdatei `imatrix.gguf` – zusammen ca. 348 GB. **Langfristige Sicherung, kein B52-Strata-Test:** 235,8 GB Gewichte im Arbeitsspeicher ohne Engram; andere Quantisierung als unser ISTA-DeepSeek. Zugangsbedingungen bei Hugging Face zuerst annehmen und `HF_TOKEN` nur in der lokalen `.env` setzen. [Kurzanleitung](docs/ORCA_DEEPSEEK_V41_ARCHIVE_2026-10.md).
+
 ## P0: DeepSeek V4.1-Flash 1017 mit Strata
 
 Neues isoliertes Tier `DS41` für die **IQ2_XS**-Quantisierung mit vier Backbone-GGUFs, Engram-Tabelle und Unsloth-DSpark-Q8_0-Drafter; ca. **274 GB** Gesamtarchiv. Alle Downloads laufen über den bestehenden Model Vault und ändern keine Strata- oder llama-swap-Konfiguration. [Vorgehen und B52-Testplan](docs/DEEPSEEK_V41_PRIORITY_2026-10.md). **Wichtig:** Strata Terminal 0.2.4.1 + eigener `strata-dsv41`-Engine benötigt; diese Software ist noch nicht auf B52 eingerichtet. Der Download beginnt erst, wenn die lokale `.env` auf `SELECT_TIERS=DS41` gesetzt und der NAS-Dienst bewusst neu gestartet wird. Laufende ABL-Downloads zuvor prüfen.
