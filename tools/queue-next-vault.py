@@ -174,10 +174,19 @@ def missing_bytes(merged: dict) -> int:
 
 
 def store_file(target: Path, content: str, mode: int):
+    previous = target.stat() if target.exists() else None
     temp = target.with_name(target.name + ".queue.new")
     temp.write_text(content, encoding="utf-8")
     os.chmod(temp, mode)
+    if previous is not None:
+        os.chown(temp, previous.st_uid, previous.st_gid)
     os.replace(temp, target)
+
+
+def preserve_backup(source: Path, target: Path):
+    shutil.copy2(source, target)
+    st = source.stat()
+    os.chown(target, st.st_uid, st.st_gid)
 
 
 def activate():
@@ -200,10 +209,10 @@ def activate():
     backup_catalog = CODE / f"models.json.before-queue-{stamp}"
     backup_verifier = CODE / f"tools/verify-abliterated.py.before-queue-{stamp}"
     old_verifier = CODE / "tools/verify-abliterated.py"
-    shutil.copy2(env_path, backup_env)
-    shutil.copy2(CODE / "models.json", backup_catalog)
+    preserve_backup(env_path, backup_env)
+    preserve_backup(CODE / "models.json", backup_catalog)
     if old_verifier.is_file():
-        shutil.copy2(old_verifier, backup_verifier)
+        preserve_backup(old_verifier, backup_verifier)
     selection = re.sub(r"(?m)^SELECT_TIERS=.*$", "SELECT_TIERS=DS41,OPEN3", env)
     record("switching", free_gb=round(free / 1e9, 2), missing_estimated_gb=round(needed / 1e9, 2))
     try:
