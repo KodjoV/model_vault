@@ -50,7 +50,7 @@ PY
 fi
 
 # This is a fixed reviewed GitHub commit, not a moving branch.
-PIN="79aaa47d9db840fa3ff7957facf843e677ae13e1"
+PIN="f454ed979b26347f0b69fbf71e63236a28b3b1c8"
 BASE="https://raw.githubusercontent.com/KodjoV/model_vault/$PIN"
 new_config="$(mktemp ./models.json.open3.XXXXXXXX)"
 mkdir -p tools
