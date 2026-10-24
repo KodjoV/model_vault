@@ -30,7 +30,7 @@ import shutil
 import sys
 env = Path(".env").read_text(encoding="utf-8")
 matches = re.findall(r"(?m)^HF_TOKEN=(.*)$", env)
-if len(matches) != 1 or matches[0].strip().strip('"'') in ("", "None"):
+if len(matches) != 1 or matches[0].strip().strip(chr(34)).strip(chr(39)) in ("", "None"):
     sys.exit("STOP: Dieses Hugging-Face-Repo ist gated. Zuerst Zugang auf "
              "huggingface.co/orcarouter/DeepSeek-V4.1-Flash-1017-abliterated-GGUF "
              "annehmen und HF_TOKEN in lokaler .env setzen. Token nie posten.")
