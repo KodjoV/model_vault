@@ -14,6 +14,12 @@ import re
 import sys
 
 ABL_TIER = "ABL"
+PUBLISHED_SHA256 = {
+    ("audreyt/DeepSeek-V4.1-Flash-Abliterated-GGUF",
+     "DeepSeek-V4.1-Flash-1017-Maya-XS-Abliterated.gguf"):
+        "f414995b3797f77009634fac995f50834e70393771f9423fca984c892503b42a",
+}
+
 HEX40 = re.compile(r"^[0-9a-f]{40}$")
 HEX64 = re.compile(r"^[0-9a-f]{64}$")
 
@@ -81,6 +87,9 @@ def verify_one(root: Path, model: dict) -> tuple[int, int, int]:
         actual = sha256_file(path)
         if actual != digest:
             raise ValueError(f"{repo}: SHA256 mismatch: {name}")
+        published = PUBLISHED_SHA256.get((repo, name))
+        if published and actual != published:
+            raise ValueError(f"{repo}: published SHA256 mismatch: {name}")
         upstream = record.get("lfs_sha256")
         if upstream is not None:
             if not isinstance(upstream, str) or not HEX64.fullmatch(upstream):
