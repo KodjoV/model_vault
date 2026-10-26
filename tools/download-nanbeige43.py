@@ -19,6 +19,7 @@ from __future__ import annotations
 import argparse
 import fcntl
 import hashlib
+import json
 import os
 from pathlib import Path
 import shutil
@@ -33,6 +34,7 @@ ROOT = BASE / "models" / REPO / "AD-IQ4_XS"
 FINAL = ROOT / NAME
 PART = ROOT / (NAME + ".part")
 LOCK = ROOT / ".nanbeige43-download.lock"
+VAULT_STATUS = BASE / ".vault" / "status.json"
 SIZE = 20_347_792_384
 SHA256 = "47793d95e80b69f46edce427f0676487b4e4fe58b093248300b42f6d9d775481"
 URL = f"https://huggingface.co/{REPO}/resolve/main/{NAME}"
@@ -106,6 +108,35 @@ def known_downloaders() -> dict[int, str]:
     return result
 
 
+def vault_heartbeat() -> dict | None:
+    """Read the Docker Model Vault's frequently refreshed status, not its processes.
+
+    The download worker writes this file every few seconds. A stored status
+    from a stopped container is *not* evidence of a running download.
+    """
+    try:
+        if VAULT_STATUS.is_symlink():
+            return None
+        age = time.time() - VAULT_STATUS.stat().st_mtime
+        if not 0 <= age <= 30:
+            return None
+        value = json.loads(VAULT_STATUS.read_text(encoding="utf-8"))
+        if not isinstance(value, dict):
+            return None
+        if value.get("phase") not in {
+            "starting", "planning", "downloading", "verifying", "paused",
+            "complete", "idle", "stopped", "fatal"
+        }:
+            return None
+        return {
+            "phase": value["phase"],
+            "verified_complete": value.get("verified_complete") is True,
+            "models": value.get("all_models", 0),
+        }
+    except (OSError, ValueError, TypeError):
+        return None
+
+
 def plan() -> None:
     print("=== NANBEIGE 4.3 VAULT PLAN ===")
     print("Quant: AD-IQ4_XS")
@@ -122,7 +153,14 @@ def plan() -> None:
         print("Part file: %.2f GB" % (PART.stat().st_size / 1e9) if is_regular(PART) else "Part file: invalid type")
     else:
         print("Part file: none")
-    print("Recognized active Vault download processes:", len(known_downloaders()))
+    print("Recognized host download processes:", len(known_downloaders()))
+    heartbeat = vault_heartbeat()
+    if heartbeat:
+        print("Docker Vault heartbeat: ACTIVE")
+        print("Vault phase:", heartbeat["phase"])
+        print("Vault verified complete:", "YES" if heartbeat["verified_complete"] else "NO")
+    else:
+        print("Docker Vault heartbeat: not active or not readable")
     print("Plan reads metadata only; no services modified.")
 
 
@@ -189,25 +227,50 @@ def download() -> None:
 
 def queue() -> None:
     initial = known_downloaders()
-    if not initial:
+    heartbeat = vault_heartbeat()
+    if not initial and heartbeat is None:
         raise RuntimeError(
-            "No recognized running Vault download process. Cannot safely infer queue order. "
-            "Use --plan and identify the active downloader before queueing."
+            "No recognized host downloader or fresh Docker Vault heartbeat. "
+            "Use --plan and check the running downloader before queueing."
         )
-    print(f"QUEUED: waiting for {len(initial)} recognized Vault downloader(s)", flush=True)
+    if heartbeat and heartbeat["phase"] in ("fatal", "stopped", "idle"):
+        raise RuntimeError("Vault reports an unfinished/failed run; refusing to start another download")
+    if heartbeat and heartbeat["phase"] == "complete" and not heartbeat["verified_complete"]:
+        raise RuntimeError("Vault phase complete but file verification incomplete; refusing")
+    tracking_vault = heartbeat is not None
+    vault_done = bool(heartbeat and heartbeat["phase"] == "complete" and heartbeat["verified_complete"])
+    print(
+        f"QUEUED: {len(initial)} host downloader(s), "
+        f"Docker heartbeat {'YES' if tracking_vault else 'NO'}",
+        flush=True
+    )
     quiet_since = None
     while True:
         active = known_downloaders()
-        if active:
+        state = vault_heartbeat()
+        if state is not None:
+            tracking_vault = True
+            phase = state["phase"]
+            if phase in ("fatal", "stopped", "idle"):
+                raise RuntimeError("Vault stopped or has unresolved errors; not starting Nanbeige")
+            vault_done = phase == "complete" and state["verified_complete"]
+            if phase == "complete" and not vault_done:
+                raise RuntimeError("Vault claims complete but not fully verified; not starting Nanbeige")
+        elif tracking_vault and not vault_done:
+            raise RuntimeError(
+                "Docker Vault status heartbeat disappeared before verified completion; "
+                "refusing to guess that the download finished."
+            )
+        if active or (tracking_vault and not vault_done):
             quiet_since = None
         else:
             if quiet_since is None:
                 quiet_since = time.monotonic()
-                print("Vault idle; confirming 45 seconds of quiet...", flush=True)
+                print("All recognized work complete; confirming 45 seconds of quiet...", flush=True)
             elif time.monotonic() - quiet_since >= 45:
                 break
         time.sleep(15)
-    print("Known downloaders finished. Starting Nanbeige.", flush=True)
+    print("Starting Nanbeige after Vault completed.", flush=True)
     download()
 
 
