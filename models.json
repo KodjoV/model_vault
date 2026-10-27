@@ -1,21 +1,433 @@
 {
   "description": "Model Vault P0 - snapshot originals and selected quants, pinned to exact HF SHA at first planning",
   "models": [
-    {"repo": "m-a-p/YuE2-3B", "enabled": true, "tier": "P0", "note": "YuE2 music generation full model; CC-BY-NC licensing and creator exceptions need checking", "allow_patterns": ["*"]},
-    {"repo": "m-a-p/YuE2-Vae", "enabled": true, "tier": "P0", "note": "YuE2 required audio decoder", "allow_patterns": ["*"]},
-    {"repo": "ACE-Step/Ace-Step1.5", "enabled": true, "tier": "P0", "note": "ACE-Step 1.5 local song generator; archive full upstream revision", "allow_patterns": ["*"]},
-    {"repo": "Comfy-Org/MiniMax-Music-3", "enabled": true, "tier": "P0", "note": "Optimized ComfyUI components, NOT entire ~60 GB repository; follow origin licenses", "allow_patterns": ["README*", "LICENSE*", "text_encoders/minimax_music3_text_encoder_pruned_int8_convrot.safetensors", "diffusion_models/minimax_music3_dit_int8_convrot.safetensors", "vae/minimax_music3_dav.safetensors"], "required_patterns": ["text_encoders/minimax_music3_text_encoder_pruned_int8_convrot.safetensors", "diffusion_models/minimax_music3_dit_int8_convrot.safetensors", "vae/minimax_music3_dav.safetensors"]},
-    {"repo": "abenzerps/Qwen-Image-2.1-Uncensored-GGUF", "enabled": true, "tier": "P0", "note": "Despite name reportedly ORIGINAL weights converted to GGUF; selected image component only", "allow_patterns": ["README*", "LICENSE*", "*Q6_K.gguf"], "required_patterns": ["*Q6_K.gguf"]},
-    {"repo": "AtomicChat/Qwen-Image-2.1-Turbo-Uncensored-GGUF", "enabled": true, "tier": "P0", "note": "Abliterated encoder, model component; requires denoiser + rest of pipeline", "allow_patterns": ["README*", "LICENSE*", "*Q5_K.gguf", "*mmproj*"], "required_patterns": ["*Q5_K.gguf"]},
-    {"repo": "AtomicChat/Qwen-Image-2.1-Turbo-GGUF", "enabled": true, "tier": "P0", "note": "Denoiser component for AtomicChat Turbo image workflow", "allow_patterns": ["README*", "LICENSE*", "*Q5_K.gguf"], "required_patterns": ["*Q5_K.gguf"]},
-    {"repo": "Qwen/Qwen-Image-2.1", "enabled": true, "tier": "P0", "note": "Original complete Qwen Image 2.1 pipeline; large; research/non-commercial restrictions", "allow_patterns": ["*"]},
-    {"repo": "openai/whisper-large-v3-turbo", "enabled": true, "tier": "P1", "note": "Local multilingual speech-to-text, fast", "allow_patterns": ["*"]},
-    {"repo": "openai/whisper-large-v3", "enabled": true, "tier": "P1", "note": "Classic full multilingual Whisper weights and configs; selected portable files", "allow_patterns": ["*.json", "*.txt", "*.md", "*.safetensors", "LICENSE*"]},
-    {"repo": "Qwen/Qwen3-ASR-1.7B", "enabled": true, "tier": "P1", "note": "Modern speech recognition alternative", "allow_patterns": ["*"]},
-    {"repo": "nvidia/parakeet-tdt-0.6b-v3", "enabled": true, "tier": "P1", "note": "Lightweight fast ASR", "allow_patterns": ["*"]},
-    {"repo": "Qwen/Qwen3-TTS-12Hz-1.7B-Base", "enabled": true, "tier": "P1", "note": "Local voice synthesis", "allow_patterns": ["*"]},
-    {"repo": "hexgrad/Kokoro-82M", "enabled": true, "tier": "P1", "note": "Small low-overhead speech synthesis", "allow_patterns": ["*"]},
-    {"repo": "openbmb/MiniCPM-V-4.7-35B-A3B-gguf", "enabled": true, "tier": "P1", "note": "Multimodal local visual understanding, Q4_K_M plus metadata/mmproj", "allow_patterns": ["README*", "LICENSE*", "*Q4_K_M.gguf", "*mmproj*", "*.json", "*.txt"], "required_patterns": ["*Q4_K_M.gguf"]},
-    {"repo": "krea/Krea-2-Raw", "enabled": false, "tier": "P1", "note": "GATED: enable only once access granted; license must be accepted", "allow_patterns": ["*"]}
+    {
+      "repo": "m-a-p/YuE2-3B",
+      "enabled": true,
+      "tier": "P0",
+      "note": "YuE2 music generation full model; CC-BY-NC licensing and creator exceptions need checking",
+      "allow_patterns": [
+        "*"
+      ]
+    },
+    {
+      "repo": "m-a-p/YuE2-Vae",
+      "enabled": true,
+      "tier": "P0",
+      "note": "YuE2 required audio decoder",
+      "allow_patterns": [
+        "*"
+      ]
+    },
+    {
+      "repo": "ACE-Step/Ace-Step1.5",
+      "enabled": true,
+      "tier": "P0",
+      "note": "ACE-Step 1.5 local song generator; archive full upstream revision",
+      "allow_patterns": [
+        "*"
+      ]
+    },
+    {
+      "repo": "Comfy-Org/MiniMax-Music-3",
+      "enabled": true,
+      "tier": "P0",
+      "note": "Optimized ComfyUI components, NOT entire ~60 GB repository; follow origin licenses",
+      "allow_patterns": [
+        "README*",
+        "LICENSE*",
+        "text_encoders/minimax_music3_text_encoder_pruned_int8_convrot.safetensors",
+        "diffusion_models/minimax_music3_dit_int8_convrot.safetensors",
+        "vae/minimax_music3_dav.safetensors"
+      ],
+      "required_patterns": [
+        "text_encoders/minimax_music3_text_encoder_pruned_int8_convrot.safetensors",
+        "diffusion_models/minimax_music3_dit_int8_convrot.safetensors",
+        "vae/minimax_music3_dav.safetensors"
+      ]
+    },
+    {
+      "repo": "abenzerps/Qwen-Image-2.1-Uncensored-GGUF",
+      "enabled": true,
+      "tier": "P0",
+      "note": "Despite name reportedly ORIGINAL weights converted to GGUF; selected image component only",
+      "allow_patterns": [
+        "README*",
+        "LICENSE*",
+        "*Q6_K.gguf"
+      ],
+      "required_patterns": [
+        "*Q6_K.gguf"
+      ]
+    },
+    {
+      "repo": "AtomicChat/Qwen-Image-2.1-Turbo-Uncensored-GGUF",
+      "enabled": true,
+      "tier": "P0",
+      "note": "Abliterated encoder, model component; requires denoiser + rest of pipeline",
+      "allow_patterns": [
+        "README*",
+        "LICENSE*",
+        "*Q5_K.gguf",
+        "*mmproj*"
+      ],
+      "required_patterns": [
+        "*Q5_K.gguf"
+      ]
+    },
+    {
+      "repo": "AtomicChat/Qwen-Image-2.1-Turbo-GGUF",
+      "enabled": true,
+      "tier": "P0",
+      "note": "Denoiser component for AtomicChat Turbo image workflow",
+      "allow_patterns": [
+        "README*",
+        "LICENSE*",
+        "*Q5_K.gguf"
+      ],
+      "required_patterns": [
+        "*Q5_K.gguf"
+      ]
+    },
+    {
+      "repo": "Qwen/Qwen-Image-2.1",
+      "enabled": true,
+      "tier": "P0",
+      "note": "Original complete Qwen Image 2.1 pipeline; large; research/non-commercial restrictions",
+      "allow_patterns": [
+        "*"
+      ]
+    },
+    {
+      "repo": "openai/whisper-large-v3-turbo",
+      "enabled": true,
+      "tier": "P1",
+      "note": "Local multilingual speech-to-text, fast",
+      "allow_patterns": [
+        "*"
+      ]
+    },
+    {
+      "repo": "openai/whisper-large-v3",
+      "enabled": true,
+      "tier": "P1",
+      "note": "Classic full multilingual Whisper weights and configs; selected portable files",
+      "allow_patterns": [
+        "*.json",
+        "*.txt",
+        "*.md",
+        "*.safetensors",
+        "LICENSE*"
+      ]
+    },
+    {
+      "repo": "Qwen/Qwen3-ASR-1.7B",
+      "enabled": true,
+      "tier": "P1",
+      "note": "Modern speech recognition alternative",
+      "allow_patterns": [
+        "*"
+      ]
+    },
+    {
+      "repo": "nvidia/parakeet-tdt-0.6b-v3",
+      "enabled": true,
+      "tier": "P1",
+      "note": "Lightweight fast ASR",
+      "allow_patterns": [
+        "*"
+      ]
+    },
+    {
+      "repo": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+      "enabled": true,
+      "tier": "P1",
+      "note": "Local voice synthesis",
+      "allow_patterns": [
+        "*"
+      ]
+    },
+    {
+      "repo": "hexgrad/Kokoro-82M",
+      "enabled": true,
+      "tier": "P1",
+      "note": "Small low-overhead speech synthesis",
+      "allow_patterns": [
+        "*"
+      ]
+    },
+    {
+      "repo": "openbmb/MiniCPM-V-4.7-35B-A3B-gguf",
+      "enabled": true,
+      "tier": "P1",
+      "note": "Multimodal local visual understanding, Q4_K_M plus metadata/mmproj",
+      "allow_patterns": [
+        "README*",
+        "LICENSE*",
+        "*Q4_K_M.gguf",
+        "*mmproj*",
+        "*.json",
+        "*.txt"
+      ],
+      "required_patterns": [
+        "*Q4_K_M.gguf"
+      ]
+    },
+    {
+      "repo": "krea/Krea-2-Raw",
+      "enabled": false,
+      "tier": "P1",
+      "note": "GATED: enable only once access granted; license must be accepted",
+      "allow_patterns": [
+        "*"
+      ]
+    },
+    {
+      "repo": "abliterant/Qwen3.8-27B-RANA-abliterated-GGUF",
+      "enabled": true,
+      "tier": "ABL",
+      "note": "RANA 27B Q4_K_M + matching MTP draft head + vision projector (do not load automatically)",
+      "allow_patterns": [
+        "Qwen3.8-27B-RANA-abliterated-Q4_K_M.gguf",
+        "mtp-Qwen3.8-27B-RANA-abliterated-Q8_0.gguf",
+        "mmproj-Qwen3.8-27B-RANA-abliterated-BF16.gguf",
+        "README.md",
+        "LICENSE*",
+        "SHA256SUMS*",
+        "SERVING.md",
+        "FINDINGS.md",
+        "EXAMPLES.md",
+        "artifact-manifest.json"
+      ],
+      "required_patterns": [
+        "Qwen3.8-27B-RANA-abliterated-Q4_K_M.gguf",
+        "mtp-Qwen3.8-27B-RANA-abliterated-Q8_0.gguf",
+        "mmproj-Qwen3.8-27B-RANA-abliterated-BF16.gguf"
+      ]
+    },
+    {
+      "repo": "Guile/Qwen3.8-27B-Humanlike-Chat-GGUF",
+      "enabled": true,
+      "tier": "ABL",
+      "note": "Humanlike 27B Q4_K_M text only; no mmproj or MTP",
+      "allow_patterns": [
+        "Qwen3.8-27B-Humanlike-Chat-Q4_K_M.gguf",
+        "README.md",
+        "LICENSE*",
+        "SHA256SUMS*",
+        "SERVING.md",
+        "FINDINGS.md",
+        "EXAMPLES.md",
+        "artifact-manifest.json"
+      ],
+      "required_patterns": [
+        "Qwen3.8-27B-Humanlike-Chat-Q4_K_M.gguf"
+      ]
+    },
+    {
+      "repo": "wangzhang/gemma-4-26B-A4B-it-abliterix-GGUF",
+      "enabled": true,
+      "tier": "ABL",
+      "note": "Gemma 4 26B A4B Q4_K_M + vision projector; EAGLE-3 not validated for abliterated weights",
+      "allow_patterns": [
+        "gemma4-26b-a4b-abliterix-Q4_K_M.gguf",
+        "mmproj-gemma4-26b-a4b-f16.gguf",
+        "README.md",
+        "LICENSE*",
+        "SHA256SUMS*",
+        "SERVING.md",
+        "FINDINGS.md",
+        "EXAMPLES.md",
+        "artifact-manifest.json"
+      ],
+      "required_patterns": [
+        "gemma4-26b-a4b-abliterix-Q4_K_M.gguf",
+        "mmproj-gemma4-26b-a4b-f16.gguf"
+      ]
+    },
+    {
+      "repo": "huihui-ai/Huihui-Qwythos-9B-Claude-Mythos-5-1M-abliterated-GGUF",
+      "enabled": true,
+      "tier": "ABL",
+      "note": "Qwythos 9B Q6_K + vision projector; claimed 1M context is not a B52 test result",
+      "allow_patterns": [
+        "Huihui-Qwythos-9B-Claude-Mythos-5-1M-abliterated-Q6_K.gguf",
+        "mmproj-model-bf16.gguf",
+        "README.md",
+        "LICENSE*",
+        "SHA256SUMS*",
+        "SERVING.md",
+        "FINDINGS.md",
+        "EXAMPLES.md",
+        "artifact-manifest.json"
+      ],
+      "required_patterns": [
+        "Huihui-Qwythos-9B-Claude-Mythos-5-1M-abliterated-Q6_K.gguf",
+        "mmproj-model-bf16.gguf"
+      ]
+    },
+    {
+      "repo": "huihui-ai/Huihui-Qwen3.8-27B-Coder390-EfficientThink-abliterated-GGUF",
+      "enabled": true,
+      "tier": "ABL",
+      "note": "Coder390 27B IQ3_S1 + vision projector and tensor allocation note; no tested GGUF MTP",
+      "allow_patterns": [
+        "Huihui-Qwen3.8-27B-Coder390-EfficientThink-abliterated-IQ3_S1.gguf",
+        "mmproj-model-bf16.gguf",
+        "tensor-type-allocation-IQ3_S.txt",
+        "README.md",
+        "LICENSE*",
+        "SHA256SUMS*",
+        "SERVING.md",
+        "FINDINGS.md",
+        "EXAMPLES.md",
+        "artifact-manifest.json"
+      ],
+      "required_patterns": [
+        "Huihui-Qwen3.8-27B-Coder390-EfficientThink-abliterated-IQ3_S1.gguf",
+        "mmproj-model-bf16.gguf",
+        "tensor-type-allocation-IQ3_S.txt"
+      ]
+    },
+    {
+      "repo": "huihui-ai/Huihui-Qwen3.8-Flash-Next-abliterated-v2-GGUF",
+      "enabled": true,
+      "tier": "ABL",
+      "note": "Flash-Next v2 Swift IQ3_S both GGUF shards + Swift vision projector; no Strata pack generated",
+      "allow_patterns": [
+        "swift-IQ3_S/Swift-Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00001-of-00002.gguf",
+        "swift-IQ3_S/Swift-Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00002-of-00002.gguf",
+        "mmproj-Swift-Qwen3.8-Flash-Next-BF16.gguf",
+        "README.md",
+        "LICENSE*",
+        "SHA256SUMS*",
+        "SERVING.md",
+        "FINDINGS.md",
+        "EXAMPLES.md",
+        "artifact-manifest.json"
+      ],
+      "required_patterns": [
+        "swift-IQ3_S/Swift-Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00001-of-00002.gguf",
+        "swift-IQ3_S/Swift-Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00002-of-00002.gguf",
+        "mmproj-Swift-Qwen3.8-Flash-Next-BF16.gguf"
+      ]
+    },
+    {
+      "repo": "ISTA-DASLab/DeepSeek-V4.1-Flash-1017-GSQ-RCO-GGUF",
+      "enabled": true,
+      "tier": "DS41",
+      "note": "P0 experiment: DeepSeek V4.1 Flash 1017 IQ2_XS (4 backbone shards) + shared Engram; dedicated Strata dsv41 engine required; no llama-swap/Strata mutation",
+      "allow_patterns": [
+        "DeepSeek-V4.1-Flash-1017-GSQ-RCO-IQ2_XS-00001-of-00004.gguf",
+        "DeepSeek-V4.1-Flash-1017-GSQ-RCO-IQ2_XS-00002-of-00004.gguf",
+        "DeepSeek-V4.1-Flash-1017-GSQ-RCO-IQ2_XS-00003-of-00004.gguf",
+        "DeepSeek-V4.1-Flash-1017-GSQ-RCO-IQ2_XS-00004-of-00004.gguf",
+        "DeepSeek-V4.1-Flash-Engram-IQ4_NL.gguf",
+        "tensor-allocation/DeepSeek-V4.1-Flash-1017-GSQ-RCO-IQ2_XS.rco-allocation.txt",
+        "README.md"
+      ],
+      "required_patterns": [
+        "DeepSeek-V4.1-Flash-1017-GSQ-RCO-IQ2_XS-00001-of-00004.gguf",
+        "DeepSeek-V4.1-Flash-1017-GSQ-RCO-IQ2_XS-00002-of-00004.gguf",
+        "DeepSeek-V4.1-Flash-1017-GSQ-RCO-IQ2_XS-00003-of-00004.gguf",
+        "DeepSeek-V4.1-Flash-1017-GSQ-RCO-IQ2_XS-00004-of-00004.gguf",
+        "DeepSeek-V4.1-Flash-Engram-IQ4_NL.gguf",
+        "tensor-allocation/DeepSeek-V4.1-Flash-1017-GSQ-RCO-IQ2_XS.rco-allocation.txt"
+      ]
+    },
+    {
+      "repo": "unsloth/DeepSeek-V4.1-Flash-1017-GGUF",
+      "enabled": true,
+      "tier": "DS41",
+      "note": "P0 experiment DSpark Q8_0 drafter for DeepSeek V4.1 1017; store separately in Vault, stage beside backbone/Engram only on B52 test copy; do not fetch massive other quants",
+      "allow_patterns": [
+        "dspark-DeepSeek-V4.1-Flash-1017-Q8_0.gguf",
+        "dspark/README.md",
+        "README.md"
+      ],
+      "required_patterns": [
+        "dspark-DeepSeek-V4.1-Flash-1017-Q8_0.gguf"
+      ]
+    },
+    {
+      "repo": "orcarouter/DeepSeek-V4.1-Flash-1017-abliterated-GGUF",
+      "enabled": true,
+      "tier": "ORCA",
+      "note": "GATED HF model; archive recommended Mix-256G (7 shards incl IQ4_NL Engram) and imatrix; ~348 GB; needs accepted access + HF_TOKEN. llama.cpp special DeepSeek PR, not validated with Strata; do not run as Model Vault admin.",
+      "allow_patterns": [
+        "Mix-256G/DeepSeek-V4.1-Flash-1017-abliterated-Mix-256G-00001-of-00007.gguf",
+        "Mix-256G/DeepSeek-V4.1-Flash-1017-abliterated-Mix-256G-00002-of-00007.gguf",
+        "Mix-256G/DeepSeek-V4.1-Flash-1017-abliterated-Mix-256G-00003-of-00007.gguf",
+        "Mix-256G/DeepSeek-V4.1-Flash-1017-abliterated-Mix-256G-00004-of-00007.gguf",
+        "Mix-256G/DeepSeek-V4.1-Flash-1017-abliterated-Mix-256G-00005-of-00007.gguf",
+        "Mix-256G/DeepSeek-V4.1-Flash-1017-abliterated-Mix-256G-00006-of-00007.gguf",
+        "Mix-256G/DeepSeek-V4.1-Flash-1017-abliterated-Mix-256G-00007-of-00007.gguf",
+        "imatrix.gguf",
+        "README.md"
+      ],
+      "required_patterns": [
+        "Mix-256G/DeepSeek-V4.1-Flash-1017-abliterated-Mix-256G-00001-of-00007.gguf",
+        "Mix-256G/DeepSeek-V4.1-Flash-1017-abliterated-Mix-256G-00002-of-00007.gguf",
+        "Mix-256G/DeepSeek-V4.1-Flash-1017-abliterated-Mix-256G-00003-of-00007.gguf",
+        "Mix-256G/DeepSeek-V4.1-Flash-1017-abliterated-Mix-256G-00004-of-00007.gguf",
+        "Mix-256G/DeepSeek-V4.1-Flash-1017-abliterated-Mix-256G-00005-of-00007.gguf",
+        "Mix-256G/DeepSeek-V4.1-Flash-1017-abliterated-Mix-256G-00006-of-00007.gguf",
+        "Mix-256G/DeepSeek-V4.1-Flash-1017-abliterated-Mix-256G-00007-of-00007.gguf",
+        "imatrix.gguf"
+      ]
+    },
+    {
+      "repo": "huihui-ai/Huihui-GLM-5.3-Flash-abliterated-GGUF",
+      "enabled": true,
+      "tier": "OPEN3",
+      "note": "P0 public download: UD-IQ2_XXS, four exact GGUF shards + BF16 vision projector; abliterated GLM 5.3 Flash; separate llama.cpp test; not equal to existing Maya-S24/M",
+      "allow_patterns": [
+        "UD-IQ2_XXS/GLM-5.3-Flash-UD-IQ2_XXS-00001-of-00004.gguf",
+        "UD-IQ2_XXS/GLM-5.3-Flash-UD-IQ2_XXS-00002-of-00004.gguf",
+        "UD-IQ2_XXS/GLM-5.3-Flash-UD-IQ2_XXS-00003-of-00004.gguf",
+        "UD-IQ2_XXS/GLM-5.3-Flash-UD-IQ2_XXS-00004-of-00004.gguf",
+        "mmproj-model-bf16.gguf",
+        "README.md"
+      ],
+      "required_patterns": [
+        "UD-IQ2_XXS/GLM-5.3-Flash-UD-IQ2_XXS-00001-of-00004.gguf",
+        "UD-IQ2_XXS/GLM-5.3-Flash-UD-IQ2_XXS-00002-of-00004.gguf",
+        "UD-IQ2_XXS/GLM-5.3-Flash-UD-IQ2_XXS-00003-of-00004.gguf",
+        "UD-IQ2_XXS/GLM-5.3-Flash-UD-IQ2_XXS-00004-of-00004.gguf",
+        "mmproj-model-bf16.gguf"
+      ]
+    },
+    {
+      "repo": "ggml-org/GLM-5.3-Flash-GGUF",
+      "enabled": true,
+      "tier": "OPEN3",
+      "note": "P1 public original GLM 5.3 comparison, Q2_K_S two GGUF shards + matching MTP Q4_0 and Q8 vision projector. No other quants. Distinct from existing Maya S24/M.",
+      "allow_patterns": [
+        "GLM-5.3-Flash-Q2_K_S-00001-of-00002.gguf",
+        "GLM-5.3-Flash-Q2_K_S-00002-of-00002.gguf",
+        "mtp-GLM-5.3-Flash-Q4_0.gguf",
+        "mmproj-GLM-5.3-Flash-Q8_0.gguf",
+        "README.md"
+      ],
+      "required_patterns": [
+        "GLM-5.3-Flash-Q2_K_S-00001-of-00002.gguf",
+        "GLM-5.3-Flash-Q2_K_S-00002-of-00002.gguf",
+        "mtp-GLM-5.3-Flash-Q4_0.gguf",
+        "mmproj-GLM-5.3-Flash-Q8_0.gguf"
+      ]
+    },
+    {
+      "repo": "audreyt/DeepSeek-V4.1-Flash-Abliterated-GGUF",
+      "enabled": true,
+      "tier": "OPEN3",
+      "note": "P2 public DeepSeek V4.1 Flash 1017 Maya-XS Abliterated 365.7 GB ds4-only native GGUF, ~107.35 GiB resident + disk Engram; NOT llama.cpp/Strata generic GGUF; no B52 runtime test yet",
+      "allow_patterns": [
+        "DeepSeek-V4.1-Flash-1017-Maya-XS-Abliterated.gguf",
+        "README.md"
+      ],
+      "required_patterns": [
+        "DeepSeek-V4.1-Flash-1017-Maya-XS-Abliterated.gguf"
+      ]
+    }
   ]
 }

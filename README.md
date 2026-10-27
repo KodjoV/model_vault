@@ -6,6 +6,26 @@
 > Die Größe 123,19 GiB und die 254 Dateien stammen aus der letzten detaillierten *Zwischenstatus*-Ausgabe; der vollständige finale Status wurde nicht übermittelt. Archivierung ist kein End-to-End-Inferenztest oder unabhängiges Backup.
 
 
+## Warteschlange für DeepSeek IQ2_XS und OPEN3
+
+Der vorhandene Vault kann die Modellauswahl nicht im laufenden Container erweitern. Mit [tools/queue-next-vault.py](tools/queue-next-vault.py) lässt sich **DS41 → OPEN3** hinter den aktuell laufenden Downloads vorbereiten: Der unabhängige NAS-Prozess wartet auf `phase=complete` und `verified_complete=true`, prüft den Abschluss nochmals und startet dann den bestehenden Vault einmal mit `SELECT_TIERS=DS41,OPEN3`. Bereits archivierte Modelle werden nicht erneut geladen. [Ein Befehl und Statusprüfung](docs/QUEUE_NEXT_NAS.md). Kein Eingriff in B52/Strata/llama-swap; nach NAS-Neustart Watcher erneut starten.
+
+## Drei öffentliche GGUFs für B52-Vergleich (OPEN3)
+
+Separates Tier `OPEN3`: Huihui GLM-5.3-Flash Abliterated UD-IQ2_XXS (vier Teile + Vision), ggml-org GLM-5.3-Flash Q2_K_S (zwei Teile + MTP Q4_0 + Vision) und audreyt DeepSeek V4.1 Flash 1017 Maya-XS Abliterated (eine ds4-spezifische GGUF). Zusammen ca. 585 GB, mindestens 650 GB freier Platz erforderlich. Die bereits archivierten GLM-Maya-S24/M bleiben erhalten und werden **nicht** erneut geladen. [Runbook](docs/PUBLIC_THREE_GGUF_2026-10.md) · [NAS-Starthelfer](tools/start-open3-nas.sh). Keine Registrierung für die öffentlich sichtbaren Quell-Repos erkennbar; echte Transfers auf dem NAS noch nicht getestet.
+
+## OrcaRouter DeepSeek V4.1 Abliterated (ORCA)
+
+Separates **ORCA**-Tier für die gegatete Mix-256G-Fassung (7 GGUF-Dateien, Engram enthalten) und die Kalibrierungsdatei `imatrix.gguf` – zusammen ca. 348 GB. **Langfristige Sicherung, kein B52-Strata-Test:** 235,8 GB Gewichte im Arbeitsspeicher ohne Engram; andere Quantisierung als unser ISTA-DeepSeek. Zugangsbedingungen bei Hugging Face zuerst annehmen und `HF_TOKEN` nur in der lokalen `.env` setzen. [Kurzanleitung](docs/ORCA_DEEPSEEK_V41_ARCHIVE_2026-10.md).
+
+## P0: DeepSeek V4.1-Flash 1017 mit Strata
+
+Neues isoliertes Tier `DS41` für die **IQ2_XS**-Quantisierung mit vier Backbone-GGUFs, Engram-Tabelle und Unsloth-DSpark-Q8_0-Drafter; ca. **274 GB** Gesamtarchiv. Alle Downloads laufen über den bestehenden Model Vault und ändern keine Strata- oder llama-swap-Konfiguration. [Vorgehen und B52-Testplan](docs/DEEPSEEK_V41_PRIORITY_2026-10.md). **Wichtig:** Strata Terminal 0.2.4.1 + eigener `strata-dsv41`-Engine benötigt; diese Software ist noch nicht auf B52 eingerichtet. Der Download beginnt erst, wenn die lokale `.env` auf `SELECT_TIERS=DS41` gesetzt und der NAS-Dienst bewusst neu gestartet wird. Laufende ABL-Downloads zuvor prüfen.
+
+## Neue Abliterated-Auswahl (ABL)
+
+Sechs gezielt ausgewählte GGUF-Modelle inklusive passender MTP-/Bildmodule liegen im separaten Katalog-Tier `ABL` (kein Download allein durch den GitHub-Commit). Anleitung für das NAS und SHA256-Nachprüfung: [Abliterated six-model archive](docs/ABLITERATED_SIX_2026-10.md). `SELECT_TIERS=ABL` wählen, bevor der Vault bewusst neu gestartet wird. P0/P1 bleiben unberührt.
+
 Private/offline-capable model archive: pinned Hugging Face commits, resumable HTTP downloads, SHA-256 manifests, live dashboard and CLI status. **Only scripts belong in GitHub; model weights, credentials and status live on the NAS.**
 
 ## UGREEN first setup
